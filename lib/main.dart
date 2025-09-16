@@ -1,4 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:mymoneymentor/screens/home.dart';
+import 'package:mymoneymentor/screens/news.dart';
+import 'package:mymoneymentor/screens/Learning.dart';
+import 'package:mymoneymentor/screens/stocks.dart';
+import 'package:mymoneymentor/screens/bot.dart';
+import 'package:mymoneymentor/screens/profile.dart';
 
 void main() {
   runApp(const MyApp());
@@ -27,10 +33,19 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0; // Tracks which icon is selected
-
+  final List<Widget> _screens =  [
+    Home_Page(),
+    Trending_News(),
+    Stock_Marcket(),
+    Learning_Path(),
+    Advisor_Bot(),
+    My_Profile()
+  ];
+  bool _isFabVisible = true;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      body: _screens[_selectedIndex],
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black87,
@@ -46,7 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
               "MyMoneyMentor",
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 20,
+                fontSize: 17,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -57,13 +72,14 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
             icon: Icon(
               Icons.search,
-              color: _selectedIndex == 5
+              color: _selectedIndex == 6
                   ? const Color.fromARGB(255, 3, 221, 137)
                   : Colors.white,
             ),
             onPressed: () {
               setState(() {
-                _selectedIndex = 5;
+                _selectedIndex = 6;
+                _isFabVisible = true;
               });
             },
           ),
@@ -79,6 +95,7 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: () {
               setState(() {
                 _selectedIndex = 7;
+                _isFabVisible = true;
               });
             },
           ),
@@ -87,25 +104,18 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
             icon: Icon(
               Icons.account_circle,
-              color: _selectedIndex == 6
+              color: _selectedIndex == 5
                   ? const Color.fromARGB(255, 3, 221, 137)
                   : Colors.white,
             ),
             onPressed: () {
               setState(() {
-                _selectedIndex = 6;
+                _selectedIndex = 5;
+                _isFabVisible = true;
               });
             },
           ),
         ],
-      ),
-
-
-      body: const Center(
-        child: Text(
-          "",
-          style: TextStyle(color: Colors.white, fontSize: 24),
-        ),
       ),
       bottomNavigationBar: BottomAppBar(
         color: Colors.black87,
@@ -123,6 +133,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   onTap: () {
                     setState(() {
                       _selectedIndex = 0;
+                      _isFabVisible = true;
                     });
                   },
                   child: Column(
@@ -161,6 +172,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   onTap: () {
                     setState(() {
                       _selectedIndex = 1;
+                      _isFabVisible = true;
                     });
                   },
                   child: Column(
@@ -200,6 +212,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   onTap: () {
                     setState(() {
                       _selectedIndex = 2;
+                      _isFabVisible = true;
                     });
                   },
                   child: Column(
@@ -227,7 +240,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
 
-            // School
+            // lEARNING
             Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -236,6 +249,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   onTap: () {
                     setState(() {
                       _selectedIndex = 3;
+                      _isFabVisible = true;
                     });
                   },
                   child: Column(
@@ -249,7 +263,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             : Colors.white,
                       ),
                       Text(
-                        "School",
+                        "Learning",
                         style: TextStyle(
                           fontSize: 12,
                           color: _selectedIndex == 3
@@ -266,15 +280,18 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
 
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: _isFabVisible
+          ? FloatingActionButton(
         onPressed: () {
           setState(() {
-            _selectedIndex = 4; // optional: handle FAB selection
+            _selectedIndex = 4; // AI / Chatbot page
+            _isFabVisible = false; // hide FAB
           });
         },
-        backgroundColor: Color.fromARGB(255, 3, 221,137),
-        child: const Icon(Icons.smart_toy,color: Colors.white,),
-      ),
+        backgroundColor: const Color.fromARGB(255, 3, 221, 137),
+        child: const Icon(Icons.smart_toy, color: Colors.white),
+      )
+          : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
