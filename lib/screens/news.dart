@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
-class Trending_News extends StatelessWidget{
+class TrendingNews extends StatelessWidget{
+  const TrendingNews({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

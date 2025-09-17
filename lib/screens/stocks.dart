@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
-class Stock_Marcket extends StatelessWidget{
+class StockMarket extends StatelessWidget{
+  const StockMarket({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

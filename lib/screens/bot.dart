@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
-class Advisor_Bot extends StatelessWidget{
+class AdvisorBot extends StatelessWidget{
+  const AdvisorBot({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-class My_Profile extends StatelessWidget{
+class MyProfile extends StatelessWidget{
+  const MyProfile({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(

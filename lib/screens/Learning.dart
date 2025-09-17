@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
-class Learning_Path extends StatelessWidget{
+class LearningPath extends StatelessWidget{
+  const LearningPath({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
