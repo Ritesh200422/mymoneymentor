@@ -63,18 +63,18 @@ class _LoginPageState extends State<LoginPage> {
                     child: Image.asset(
                       "assets/images/logo.png",
                       height: 120,
-                      width: 120,
+                      width: 80,
                       fit: BoxFit.cover,
                     ),
                   ),
-                  Transform.translate(
-                    offset: const Offset(-30, 0),
-                    child: const Text(
+                   // Use SizedBox for spacing adjustment
+                  Flexible(
+                    child: Text(
                       "MyMoneyMentor",
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
-                        color: Color.fromARGB(255, 3, 221, 137),
+                        color: Colors.white,
                         shadows: [
                           Shadow(
                             color: Colors.black26,
@@ -88,7 +88,7 @@ class _LoginPageState extends State<LoginPage> {
                 ],
               ),
 
-              const SizedBox(height: 30),
+              const SizedBox(height: 20),
 
               // Continue with Google Button
               ElevatedButton.icon(
@@ -163,14 +163,7 @@ class _LoginPageState extends State<LoginPage> {
                         // Email Field
                         Padding(
                           padding: const EdgeInsets.fromLTRB(10, 0, 0, 10),
-                          child: const Text(
-                            "Email:",
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.white70,
-                            ),
-                          ),
+
                         ),
                         TextFormField(
                           controller: _emailController,
@@ -189,14 +182,7 @@ class _LoginPageState extends State<LoginPage> {
                         // Password Field
                         Padding(
                           padding: const EdgeInsets.fromLTRB(10, 0, 0, 10),
-                          child: const Text(
-                            "Password:",
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.white70,
-                            ),
-                          ),
+
                         ),
                         TextFormField(
                           controller: _passwordController,
