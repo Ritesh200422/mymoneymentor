@@ -1,6 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../../../core/routes.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+import '../../../core/routes.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -16,9 +20,81 @@ class _LoginPageState extends State<LoginPage> {
 
   bool _isPasswordVisible = false;
 
-  void _login() {
+  /// Normal email-password login
+  void _login() async {
     if (_formKey.currentState!.validate()) {
-      Navigator.pushReplacementNamed(context, Routes.dashboard);
+      try {
+        await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
+        );
+
+        if (mounted) {
+          Navigator.pushReplacementNamed(context, Routes.dashboard);
+        }
+      } on FirebaseAuthException catch (e) {
+        String message = "Login failed";
+        if (e.code == 'user-not-found') {
+          message = "No user found for this email";
+        } else if (e.code == 'wrong-password') {
+          message = "Incorrect password";
+        }
+
+        if (mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(message)));
+        }
+      }
+    }
+  }
+
+  /// Google login
+  Future<void> _signInWithGoogle() async {
+    try {
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      if (googleUser == null) return; // user canceled
+
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      final userCredential = await FirebaseAuth.instance.signInWithCredential(
+        credential,
+      );
+      final user = userCredential.user;
+
+      if (user != null) {
+        final userDoc = FirebaseFirestore.instance
+            .collection("users")
+            .doc(user.uid);
+
+        final snapshot = await userDoc.get();
+
+        if (snapshot.exists) {
+          // ✅ User already signed up → Dashboard
+          if (mounted) {
+            Navigator.pushReplacementNamed(context, Routes.dashboard);
+          }
+        } else {
+          // ❌ First time Google login → Signup page
+          if (mounted) {
+            Navigator.pushReplacementNamed(context, Routes.signup);
+          }
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(
+          SnackBar(content: Text("Google Sign-In failed: $e"))
+        );
+      }
     }
   }
 
@@ -54,7 +130,7 @@ class _LoginPageState extends State<LoginPage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Logo with overlapping text
+              // Logo + text
               Row(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -90,30 +166,27 @@ class _LoginPageState extends State<LoginPage> {
 
               const SizedBox(height: 30),
 
-              // Continue with Google Button
+              // ✅ Continue with Google Button
               ElevatedButton.icon(
-                onPressed: () {
-                  // TODO: Implement Google Sign-In
-                },
+                onPressed: _signInWithGoogle,
                 icon: SvgPicture.asset(
                   "assets/icons/Google.svg",
                   width: 24,
                   height: 24,
                 ),
-
                 label: const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 8.0),
                   child: Text(
                     "Continue with Google",
                     style: TextStyle(
                       fontSize: 16,
-                      color: Color.fromARGB(255, 255, 255, 255),
+                      color: Colors.white,
                       fontWeight: FontWeight.w900,
                     ),
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color.fromARGB(225, 1, 241, 149),
+                  backgroundColor: const Color.fromARGB(225, 1, 241, 149),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 24,
                     vertical: 18,
@@ -125,13 +198,14 @@ class _LoginPageState extends State<LoginPage> {
               ),
 
               const SizedBox(height: 25),
+
               Row(
                 children: [
                   const Expanded(
                     child: Divider(
                       color: Colors.grey,
                       thickness: 1,
-                      endIndent: 10, // spacing between line and text
+                      endIndent: 10,
                     ),
                   ),
                   Text(
@@ -142,15 +216,15 @@ class _LoginPageState extends State<LoginPage> {
                     child: Divider(
                       color: Colors.grey,
                       thickness: 1,
-                      indent: 10, // spacing between text and line
+                      indent: 10,
                     ),
                   ),
                 ],
               ),
 
-              // Login Form Card
+              // Login with Email/Password
               Card(
-                color: const Color.fromARGB(255, 0, 0, 0),
+                color: Colors.black,
                 elevation: 8,
                 child: Padding(
                   padding: const EdgeInsets.all(25),
@@ -158,11 +232,10 @@ class _LoginPageState extends State<LoginPage> {
                     key: _formKey,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        // Email Field
+                        // Email
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(10, 0, 0, 10),
+                          padding: const EdgeInsets.only(bottom: 10, left: 10),
                           child: const Text(
                             "Email:",
                             style: TextStyle(
@@ -174,9 +247,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         TextFormField(
                           controller: _emailController,
-                          style: const TextStyle(
-                            color: Color.fromARGB(255, 209, 209, 209),
-                          ),
+                          style: const TextStyle(color: Colors.white),
                           decoration: buildInputDecoration(
                             label: "Email",
                             hint: "Enter your email",
@@ -184,11 +255,12 @@ class _LoginPageState extends State<LoginPage> {
                           validator: (value) =>
                               value!.isEmpty ? "Enter email" : null,
                         ),
+
                         const SizedBox(height: 20),
 
-                        // Password Field
+                        // Password
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(10, 0, 0, 10),
+                          padding: const EdgeInsets.only(bottom: 10, left: 10),
                           child: const Text(
                             "Password:",
                             style: TextStyle(
@@ -224,57 +296,62 @@ class _LoginPageState extends State<LoginPage> {
                           validator: (value) =>
                               value!.isEmpty ? "Enter password" : null,
                         ),
+
                         const SizedBox(height: 30),
 
-            // Login Button
-            Center(
-              child: Column(
-                children: [
-                  ElevatedButton(
-                    onPressed: _login,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color.fromARGB(255, 3, 221, 137),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 40,
-                        vertical: 14,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text(
-                      "Login",
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
+                        Center(
+                          child: Column(
+                            children: [
+                              ElevatedButton(
+                                onPressed: _login,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color.fromARGB(
+                                    255,
+                                    3,
+                                    221,
+                                    137,
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 40,
+                                    vertical: 14,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: const Text(
+                                  "Login",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w900,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 12),
 
-                  // Sign Up TextButton
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, Routes.signup);
-                    },
-                    child: const Text(
-                      "Don’t have an account? Sign Up",
-                      style: TextStyle(
-                        color: Color.fromARGB(255, 3, 221, 137),
-                        fontWeight: FontWeight.w600,
-                      ),
+                              // Sign Up link
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pushNamed(context, Routes.signup);
+                                },
+                                child: const Text(
+                                  "Don’t have an account? Sign Up",
+                                  style: TextStyle(
+                                    color: Color.fromARGB(255, 3, 221, 137),
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
+                ),
               ),
-            ),
-          ],
-        ),
-      ),
-    ),
-  ),
-],
+            ],
           ),
         ),
       ),

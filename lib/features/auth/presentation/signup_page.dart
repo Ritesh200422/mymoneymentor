@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../../core/routes.dart';
 
@@ -43,11 +45,49 @@ class _SignupPageState extends State<SignupPage> {
     );
   }
 
-  void _signup() {
+  Future<void> _signup() async {
     if (_formKey.currentState!.validate() && _acceptedTerms) {
-      // TODO: Save signup data (API call or database insert)
-      Navigator.pushReplacementNamed(context, Routes.dashboard);
+      try {
+        // ✅ Create user in Firebase Auth
+        UserCredential userCredential = await FirebaseAuth.instance
+            .createUserWithEmailAndPassword(
+              email: _emailController.text.trim(),
+              password: _passwordController.text.trim(),
+            );
+
+        // ✅ Store extra user data in Firestore
+        await FirebaseFirestore.instance
+            .collection("users")
+            .doc(userCredential.user!.uid)
+            .set({
+              "name": _nameController.text.trim(),
+              "email": _emailController.text.trim(),
+              "dob": _dobController.text.trim(),
+              "createdAt": DateTime.now(),
+            });
+
+        // ✅ Only use context if widget is still active
+        if (!mounted) return;
+        Navigator.pushReplacementNamed(context, Routes.dashboard);
+      } on FirebaseAuthException catch (e) {
+        if (!mounted) return;
+        String errorMessage = "Signup failed";
+        if (e.code == "email-already-in-use") {
+          errorMessage = "Email already in use";
+        } else if (e.code == "weak-password") {
+          errorMessage = "Password is too weak";
+        }
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(errorMessage)));
+      } catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Unexpected error: $e")));
+      }
     } else if (!_acceptedTerms) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("You must accept the Terms & Privacy Policy"),

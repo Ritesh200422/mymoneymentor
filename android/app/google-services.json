@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "225632634486",
+    "project_id": "my-money-mentor-1a14f",
+    "storage_bucket": "my-money-mentor-1a14f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:225632634486:android:ca5ae00d8292f7d2574157",
+        "android_client_info": {
+          "package_name": "com.example.mymoneymentor"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB-32QE-K_5V7RYaSpiYmzjf2ktYUNJdRE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

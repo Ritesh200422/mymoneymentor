@@ -6,8 +6,6 @@ import "package:mymoneymentor/screens/stocks.dart";
 import "package:mymoneymentor/screens/learning.dart";
 import "package:mymoneymentor/screens/home.dart";
 
-
-
 // MyApp as StatelessWidget, only wraps MaterialApp
 class Dashboard extends StatelessWidget {
   const Dashboard({super.key});
@@ -31,13 +29,13 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0; // Tracks which icon is selected
-  final List<Widget> _screens =  [
+  final List<Widget> _screens = [
     HomePage(),
     TrendingNews(),
     StockMarket(),
     LearningPath(),
     AdvisorBot(),
-    MyProfile()
+    MyProfile(),
   ];
   bool _isFabVisible = true;
   @override
@@ -54,7 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
               fit: BoxFit.contain,
               height: 60,
             ),
-            const SizedBox(width:0), // small gap between logo & text
+            const SizedBox(width: 0), // small gap between logo & text
             const Text(
               "MyMoneyMentor",
               style: TextStyle(
@@ -159,8 +157,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
 
-
-
             // News
             Column(
               mainAxisSize: MainAxisSize.min,
@@ -197,9 +193,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
-
-
-
 
             // Chart
             Column(
@@ -280,15 +273,15 @@ class _HomeScreenState extends State<HomeScreen> {
 
       floatingActionButton: _isFabVisible
           ? FloatingActionButton(
-        onPressed: () {
-          setState(() {
-            _selectedIndex = 4; // AI / Chatbot page
-            _isFabVisible = false; // hide FAB
-          });
-        },
-        backgroundColor: const Color.fromARGB(255, 3, 221, 137),
-        child: const Icon(Icons.smart_toy, color: Colors.white),
-      )
+              onPressed: () {
+                setState(() {
+                  _selectedIndex = 4; // AI / Chatbot page
+                  _isFabVisible = false; // hide FAB
+                });
+              },
+              backgroundColor: const Color.fromARGB(255, 3, 221, 137),
+              child: const Icon(Icons.smart_toy, color: Colors.white),
+            )
           : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
