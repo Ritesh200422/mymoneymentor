@@ -12,7 +12,20 @@
           "package_name": "com.example.mymoneymentor"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "225632634486-vf7m89d4sfcjsjc0akaujn5sg2orfchi.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.mymoneymentor",
+            "certificate_hash": "6ecb2e3bdbe2c6f94c57c340c252da746a352fd2"
+          }
+        },
+        {
+          "client_id": "225632634486-plthcg483eacg128ujque6rtogih9ii7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyB-32QE-K_5V7RYaSpiYmzjf2ktYUNJdRE"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "225632634486-plthcg483eacg128ujque6rtogih9ii7.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "225632634486-k88omvkrqdvmhu4kfgkecgom37n6k36v.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.mymoneymentor"
+              }
+            }
+          ]
         }
       }
     }

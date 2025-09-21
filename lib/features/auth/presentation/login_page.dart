@@ -49,10 +49,13 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  final GoogleSignIn googleSignIn =
+      GoogleSignIn(); // ✅ Mobile: no clientId needed
+
   /// Google login
   Future<void> _signInWithGoogle() async {
     try {
-      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
       if (googleUser == null) return; // user canceled
 
       final GoogleSignInAuthentication googleAuth =
@@ -69,14 +72,14 @@ class _LoginPageState extends State<LoginPage> {
       final user = userCredential.user;
 
       if (user != null) {
-        final userDoc = FirebaseFirestore.instance
+        // 🔍 Check Firestore if user with this email exists
+        final query = await FirebaseFirestore.instance
             .collection("users")
-            .doc(user.uid);
+            .where("email", isEqualTo: user.email)
+            .get();
 
-        final snapshot = await userDoc.get();
-
-        if (snapshot.exists) {
-          // ✅ User already signed up → Dashboard
+        if (query.docs.isNotEmpty) {
+          // ✅ Email already signed up → Dashboard
           if (mounted) {
             Navigator.pushReplacementNamed(context, Routes.dashboard);
           }
@@ -91,9 +94,7 @@ class _LoginPageState extends State<LoginPage> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(
-          SnackBar(content: Text("Google Sign-In failed: $e"))
-        );
+        ).showSnackBar(SnackBar(content: Text("Google Sign-In failed: $e")));
       }
     }
   }
@@ -139,18 +140,17 @@ class _LoginPageState extends State<LoginPage> {
                     child: Image.asset(
                       "assets/images/logo.png",
                       height: 120,
-                      width: 120,
+                      width: 80,
                       fit: BoxFit.cover,
                     ),
                   ),
-                  Transform.translate(
-                    offset: const Offset(-30, 0),
-                    child: const Text(
+                  Flexible(
+                    child: Text(
                       "MyMoneyMentor",
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
-                        color: Color.fromARGB(255, 3, 221, 137),
+                        color: Colors.white,
                         shadows: [
                           Shadow(
                             color: Colors.black26,
@@ -163,10 +163,9 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ],
               ),
+              const SizedBox(height: 20),
 
-              const SizedBox(height: 30),
-
-              // ✅ Continue with Google Button
+              // Continue with Google Button
               ElevatedButton.icon(
                 onPressed: _signInWithGoogle,
                 icon: SvgPicture.asset(
@@ -196,9 +195,9 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 25),
 
+              // Divider
               Row(
                 children: [
                   const Expanded(
@@ -222,7 +221,7 @@ class _LoginPageState extends State<LoginPage> {
                 ],
               ),
 
-              // Login with Email/Password
+              // Email/Password login form
               Card(
                 color: Colors.black,
                 elevation: 8,
@@ -233,18 +232,6 @@ class _LoginPageState extends State<LoginPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Email
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 10, left: 10),
-                          child: const Text(
-                            "Email:",
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.white70,
-                            ),
-                          ),
-                        ),
                         TextFormField(
                           controller: _emailController,
                           style: const TextStyle(color: Colors.white),
@@ -255,21 +242,7 @@ class _LoginPageState extends State<LoginPage> {
                           validator: (value) =>
                               value!.isEmpty ? "Enter email" : null,
                         ),
-
                         const SizedBox(height: 20),
-
-                        // Password
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 10, left: 10),
-                          child: const Text(
-                            "Password:",
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.white70,
-                            ),
-                          ),
-                        ),
                         TextFormField(
                           controller: _passwordController,
                           style: const TextStyle(color: Colors.white),
@@ -296,9 +269,7 @@ class _LoginPageState extends State<LoginPage> {
                           validator: (value) =>
                               value!.isEmpty ? "Enter password" : null,
                         ),
-
                         const SizedBox(height: 30),
-
                         Center(
                           child: Column(
                             children: [
@@ -329,8 +300,6 @@ class _LoginPageState extends State<LoginPage> {
                                 ),
                               ),
                               const SizedBox(height: 12),
-
-                              // Sign Up link
                               TextButton(
                                 onPressed: () {
                                   Navigator.pushNamed(context, Routes.signup);

@@ -114,31 +114,30 @@ class _SignupPageState extends State<SignupPage> {
                   ClipOval(
                     child: Image.asset(
                       "assets/images/logo.png",
-                      height: 120,
-                      width: 120,
+                      height: 100, // slightly smaller for performance
+                      width: 100,
                       fit: BoxFit.cover,
                     ),
                   ),
-                  Transform.translate(
-                    offset: const Offset(-30, 0),
-                    child: const Text(
-                      "MyMoneyMentor",
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: Color.fromARGB(255, 3, 221, 137),
-                        shadows: [
-                          Shadow(
-                            color: Colors.black26,
-                            offset: Offset(1, 1),
-                            blurRadius: 2,
-                          ),
-                        ],
-                      ),
+                  const SizedBox(width: 12), // simple spacing instead of Transform
+                  const Text(
+                    "MyMoneyMentor",
+                    style: TextStyle(
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                      color: Color.fromARGB(255, 3, 221, 137),
+                      shadows: [
+                        Shadow(
+                          color: Colors.black26,
+                          offset: Offset(1, 1),
+                          blurRadius: 2,
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
+
 
               const Text(
                 "Create your account",

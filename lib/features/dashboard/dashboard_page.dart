@@ -50,7 +50,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Image.asset(
               "assets/images/logo.png",
               fit: BoxFit.contain,
-              height: 60,
+              height: 65, // reduced to fit nicely in AppBar
             ),
             const SizedBox(width: 0), // small gap between logo & text
             const Text(
