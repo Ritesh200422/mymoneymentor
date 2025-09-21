@@ -63,18 +63,18 @@ class _LoginPageState extends State<LoginPage> {
                     child: Image.asset(
                       "assets/images/logo.png",
                       height: 120,
-                      width: 80,
+                      width: 120,
                       fit: BoxFit.cover,
                     ),
                   ),
-                  // Use SizedBox for spacing adjustment
-                  Flexible(
-                    child: Text(
+                  Transform.translate(
+                    offset: const Offset(-30, 0),
+                    child: const Text(
                       "MyMoneyMentor",
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: Color.fromARGB(255, 3, 221, 137),
                         shadows: [
                           Shadow(
                             color: Colors.black26,

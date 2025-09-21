@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../../core/routes.dart';
 
@@ -43,11 +45,49 @@ class _SignupPageState extends State<SignupPage> {
     );
   }
 
-  void _signup() {
+  Future<void> _signup() async {
     if (_formKey.currentState!.validate() && _acceptedTerms) {
-      // TODO: Save signup data (API call or database insert)
-      Navigator.pushReplacementNamed(context, Routes.dashboard);
+      try {
+        // ✅ Create user in Firebase Auth
+        UserCredential userCredential = await FirebaseAuth.instance
+            .createUserWithEmailAndPassword(
+              email: _emailController.text.trim(),
+              password: _passwordController.text.trim(),
+            );
+
+        // ✅ Store extra user data in Firestore
+        await FirebaseFirestore.instance
+            .collection("users")
+            .doc(userCredential.user!.uid)
+            .set({
+              "name": _nameController.text.trim(),
+              "email": _emailController.text.trim(),
+              "dob": _dobController.text.trim(),
+              "createdAt": DateTime.now(),
+            });
+
+        // ✅ Only use context if widget is still active
+        if (!mounted) return;
+        Navigator.pushReplacementNamed(context, Routes.dashboard);
+      } on FirebaseAuthException catch (e) {
+        if (!mounted) return;
+        String errorMessage = "Signup failed";
+        if (e.code == "email-already-in-use") {
+          errorMessage = "Email already in use";
+        } else if (e.code == "weak-password") {
+          errorMessage = "Password is too weak";
+        }
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(errorMessage)));
+      } catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Unexpected error: $e")));
+      }
     } else if (!_acceptedTerms) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("You must accept the Terms & Privacy Policy"),
@@ -74,31 +114,30 @@ class _SignupPageState extends State<SignupPage> {
                   ClipOval(
                     child: Image.asset(
                       "assets/images/logo.png",
-                      height: 120,
-                      width: 120,
+                      height: 100, // slightly smaller for performance
+                      width: 100,
                       fit: BoxFit.cover,
                     ),
                   ),
-                  Transform.translate(
-                    offset: const Offset(-30, 0),
-                    child: const Text(
-                      "MyMoneyMentor",
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: Color.fromARGB(255, 3, 221, 137),
-                        shadows: [
-                          Shadow(
-                            color: Colors.black26,
-                            offset: Offset(1, 1),
-                            blurRadius: 2,
-                          ),
-                        ],
-                      ),
+                  const SizedBox(width: 12), // simple spacing instead of Transform
+                  const Text(
+                    "MyMoneyMentor",
+                    style: TextStyle(
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                      color: Color.fromARGB(255, 3, 221, 137),
+                      shadows: [
+                        Shadow(
+                          color: Colors.black26,
+                          offset: Offset(1, 1),
+                          blurRadius: 2,
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
+
 
               const Text(
                 "Create your account",

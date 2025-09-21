@@ -32,12 +32,12 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0; // Tracks which icon is selected
   final List<Widget> _screens =  [
-
+    FinanceDashboard(),
     TrendingNews(),
     StockMarket(),
     LearningPath(),
     AdvisorBot(),
-    MyProfile()
+    MyProfile(),
   ];
   bool _isFabVisible = true;
   @override
