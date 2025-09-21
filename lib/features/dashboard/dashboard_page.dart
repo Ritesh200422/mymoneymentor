@@ -32,7 +32,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0; // Tracks which icon is selected
   final List<Widget> _screens =  [
-    HomePage(),
+
     TrendingNews(),
     StockMarket(),
     LearningPath(),
