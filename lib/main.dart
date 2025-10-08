@@ -8,8 +8,9 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const MyApp());
+  runApp(MyApp());
 }
+
 
 // MyApp as StatelessWidget, only wraps MaterialApp
 class MyApp extends StatelessWidget {
