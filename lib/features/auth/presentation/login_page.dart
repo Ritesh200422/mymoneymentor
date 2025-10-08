@@ -3,12 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+import 'package:flutter/foundation.dart';
 import '../../../core/routes.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
-
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
@@ -17,18 +16,24 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-
   bool _isPasswordVisible = false;
+  bool _isLoading = false;
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    scopes: ['email', 'profile'],
+    clientId: kIsWeb ? null : null,
+  );
 
   /// Normal email-password login
   void _login() async {
     if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+      });
       try {
         await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: _emailController.text.trim(),
           password: _passwordController.text.trim(),
         );
-
         if (mounted) {
           Navigator.pushReplacementNamed(context, Routes.dashboard);
         }
@@ -38,64 +43,140 @@ class _LoginPageState extends State<LoginPage> {
           message = "No user found for this email";
         } else if (e.code == 'wrong-password') {
           message = "Incorrect password";
+        } else if (e.code == 'invalid-email') {
+          message = "Invalid email format";
+        } else if (e.code == 'user-disabled') {
+          message = "This account has been disabled";
         }
-
+        // 🔹 Log the exact error
+        debugPrint(
+          "FirebaseAuthException during email login: ${e.code} - ${e.message}",
+        );
         if (mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(message)));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(message), backgroundColor: Colors.red),
+          );
+        }
+      } catch (e) {
+        // 🔹 Log unknown errors
+        debugPrint("Unknown error during email login: $e");
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Login failed: $e"),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
         }
       }
     }
   }
 
-  final GoogleSignIn googleSignIn =
-      GoogleSignIn(); // ✅ Mobile: no clientId needed
-
-  /// Google login
   Future<void> _signInWithGoogle() async {
+    setState(() {
+      _isLoading = true;
+    });
     try {
-      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-      if (googleUser == null) return; // user canceled
+      GoogleSignInAccount? googleUser;
+
+      // 🔹 Always use signIn() to avoid double popups
+      googleUser = await _googleSignIn.signIn();
+
+      if (googleUser == null) {
+        // User cancelled
+        debugPrint("Google Sign-In cancelled by user.");
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
 
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
-
-      final credential = GoogleAuthProvider.credential(
+      final AuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
-      final userCredential = await FirebaseAuth.instance.signInWithCredential(
-        credential,
-      );
-      final user = userCredential.user;
+      final UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithCredential(credential);
+      final User? user = userCredential.user;
 
       if (user != null) {
-        // 🔍 Check Firestore if user with this email exists
-        final query = await FirebaseFirestore.instance
-            .collection("users")
-            .where("email", isEqualTo: user.email)
-            .get();
+        await _handleUserAfterGoogleSignIn(user);
+      }
+    } catch (error) {
+      debugPrint("Google Sign-In Error: $error");
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Google Sign-In failed: $error"),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
 
-        if (query.docs.isNotEmpty) {
-          // ✅ Email already signed up → Dashboard
-          if (mounted) {
-            Navigator.pushReplacementNamed(context, Routes.dashboard);
-          }
-        } else {
-          // ❌ First time Google login → Signup page
-          if (mounted) {
-            Navigator.pushReplacementNamed(context, Routes.signup);
-          }
+  /// Handle user after Google sign-in
+  Future<void> _handleUserAfterGoogleSignIn(User user) async {
+    try {
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection("users")
+          .where("email", isEqualTo: user.email)
+          .limit(1)
+          .get();
+      if (querySnapshot.docs.isNotEmpty) {
+        debugPrint("User ${user.email} exists in Firestore → logging in.");
+        if (mounted) {
+          Navigator.pushReplacementNamed(context, Routes.dashboard);
+        }
+      } else {
+        debugPrint("User ${user.email} not found in Firestore → creating new.");
+        await _createUserInFirestore(user);
+        if (mounted) {
+          Navigator.pushReplacementNamed(context, Routes.signup);
         }
       }
     } catch (e) {
+      debugPrint("Error handling Google user in Firestore: $e");
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("Google Sign-In failed: $e")));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error: $e"), backgroundColor: Colors.red),
+        );
       }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  /// Create user document in Firestore
+  Future<void> _createUserInFirestore(User user) async {
+    try {
+      await FirebaseFirestore.instance.collection("users").doc(user.uid).set({
+        'uid': user.uid,
+        'email': user.email,
+        'displayName': user.displayName,
+        'photoURL': user.photoURL,
+        'createdAt': FieldValue.serverTimestamp(),
+        'isGoogleUser': true,
+      });
+      debugPrint("New Firestore user created: ${user.email}");
+    } catch (e) {
+      debugPrint("Error creating Firestore user: $e");
     }
   }
 
@@ -167,22 +248,33 @@ class _LoginPageState extends State<LoginPage> {
 
               // Continue with Google Button
               ElevatedButton.icon(
-                onPressed: _signInWithGoogle,
+                onPressed: _isLoading ? null : _signInWithGoogle,
                 icon: SvgPicture.asset(
                   "assets/icons/Google.svg",
                   width: 24,
                   height: 24,
                 ),
-                label: const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Text(
-                    "Continue with Google",
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
+                label: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: _isLoading
+                      ? SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
+                          ),
+                        )
+                      : const Text(
+                          "Continue with Google",
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color.fromARGB(225, 1, 241, 149),
@@ -200,9 +292,9 @@ class _LoginPageState extends State<LoginPage> {
               // Divider
               Row(
                 children: [
-                  const Expanded(
+                  Expanded(
                     child: Divider(
-                      color: Colors.grey,
+                      color: Colors.grey[600],
                       thickness: 1,
                       endIndent: 10,
                     ),
@@ -211,9 +303,9 @@ class _LoginPageState extends State<LoginPage> {
                     "or",
                     style: TextStyle(color: Colors.grey[400], fontSize: 16),
                   ),
-                  const Expanded(
+                  Expanded(
                     child: Divider(
-                      color: Colors.grey,
+                      color: Colors.grey[600],
                       thickness: 1,
                       indent: 10,
                     ),
@@ -274,7 +366,7 @@ class _LoginPageState extends State<LoginPage> {
                           child: Column(
                             children: [
                               ElevatedButton(
-                                onPressed: _login,
+                                onPressed: _isLoading ? null : _login,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color.fromARGB(
                                     255,
@@ -290,22 +382,39 @@ class _LoginPageState extends State<LoginPage> {
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
-                                child: const Text(
-                                  "Login",
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w900,
-                                  ),
-                                ),
+                                child: _isLoading
+                                    ? SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                Colors.white,
+                                              ),
+                                        ),
+                                      )
+                                    : const Text(
+                                        "Login",
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w900,
+                                        ),
+                                      ),
                               ),
                               const SizedBox(height: 12),
                               TextButton(
-                                onPressed: () {
-                                  Navigator.pushNamed(context, Routes.signup);
-                                },
+                                onPressed: _isLoading
+                                    ? null
+                                    : () {
+                                        Navigator.pushNamed(
+                                          context,
+                                          Routes.signup,
+                                        );
+                                      },
                                 child: const Text(
-                                  "Don’t have an account? Sign Up",
+                                  "Don't have an account? Sign Up",
                                   style: TextStyle(
                                     color: Color.fromARGB(255, 3, 221, 137),
                                     fontWeight: FontWeight.w600,
@@ -325,5 +434,12 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 }
