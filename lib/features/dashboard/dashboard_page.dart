@@ -6,9 +6,6 @@ import "package:mymoneymentor/screens/stocks.dart";
 import "package:mymoneymentor/screens/learning.dart";
 import "package:mymoneymentor/screens/home.dart";
 
-
-
-// MyApp as StatelessWidget, only wraps MaterialApp
 class Dashboard extends StatelessWidget {
   const Dashboard({super.key});
 
@@ -21,7 +18,6 @@ class Dashboard extends StatelessWidget {
   }
 }
 
-// StatefulWidget for the screen to manage selected icon
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -30,20 +26,21 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _selectedIndex = 0; // Tracks which icon is selected
-  final List<Widget> _screens =  [
-    FinanceDashboard(),
-    TrendingNews(),
-    StockMarket(),
-    LearningPath(),
-    AdvisorBot(),
-    MyProfile(),
-  ];
+  int _selectedIndex = 0;
   bool _isFabVisible = true;
+
+  final List<Widget> _screens = [
+    FinanceDashboard(), // Home
+    LearningPath(),     // Learning
+    StockMarket(),      // Progress
+    TrendingNews(),     // Quizzes
+    AdvisorBot(),       // Settings/Chatbot
+    MyProfile(),        // Profile
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[_selectedIndex],
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black87,
@@ -54,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
               fit: BoxFit.contain,
               height: 60,
             ),
-            const SizedBox(width:0), // small gap between logo & text
+            const SizedBox(width: 8),
             const Text(
               "MyMoneyMentor",
               style: TextStyle(
@@ -66,224 +63,57 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
         actions: [
-          // Search
           IconButton(
-            icon: Icon(
-              Icons.search,
-              color: _selectedIndex == 6
-                  ? const Color.fromARGB(255, 3, 221, 137)
-                  : Colors.white,
-            ),
+            icon: const Icon(Icons.search, color: Colors.white),
             onPressed: () {
               setState(() {
-                _selectedIndex = 6;
-                _isFabVisible = true;
+                _selectedIndex = 3; // example: trending news
               });
             },
           ),
-
-          // Notifications
           IconButton(
-            icon: Icon(
-              Icons.notifications,
-              color: _selectedIndex == 7
-                  ? const Color.fromARGB(255, 3, 221, 137)
-                  : Colors.white,
-            ),
+            icon: const Icon(Icons.notifications, color: Colors.white),
             onPressed: () {
-              setState(() {
-                _selectedIndex = 7;
-                _isFabVisible = true;
-              });
+              // handle notifications
             },
           ),
-
-          // Profile
           IconButton(
-            icon: Icon(
-              Icons.account_circle,
-              color: _selectedIndex == 5
-                  ? const Color.fromARGB(255, 3, 221, 137)
-                  : Colors.white,
-            ),
+            icon: const Icon(Icons.account_circle, color: Colors.white),
             onPressed: () {
               setState(() {
-                _selectedIndex = 5;
-                _isFabVisible = true;
+                _selectedIndex = 5; // profile
               });
             },
           ),
         ],
       ),
-      bottomNavigationBar: BottomAppBar(
-        color: Colors.black87,
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 8.0,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            // Home
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                InkWell(
-                  borderRadius: BorderRadius.circular(30),
-                  onTap: () {
-                    setState(() {
-                      _selectedIndex = 0;
-                      _isFabVisible = true;
-                    });
-                  },
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.home,
-                        size: 24,
-                        color: _selectedIndex == 0
-                            ? const Color.fromARGB(255, 3, 221, 137)
-                            : Colors.white,
-                      ),
-                      Text(
-                        "Home",
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: _selectedIndex == 0
-                              ? const Color.fromARGB(255, 3, 221, 137)
-                              : Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-
-
-
-            // News
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                InkWell(
-                  borderRadius: BorderRadius.circular(30),
-                  onTap: () {
-                    setState(() {
-                      _selectedIndex = 1;
-                      _isFabVisible = true;
-                    });
-                  },
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.newspaper,
-                        size: 24,
-                        color: _selectedIndex == 1
-                            ? const Color.fromARGB(255, 3, 221, 137)
-                            : Colors.white,
-                      ),
-                      Text(
-                        "News",
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: _selectedIndex == 1
-                              ? const Color.fromARGB(255, 3, 221, 137)
-                              : Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-
-
-
-
-            // Chart
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                InkWell(
-                  borderRadius: BorderRadius.circular(30),
-                  onTap: () {
-                    setState(() {
-                      _selectedIndex = 2;
-                      _isFabVisible = true;
-                    });
-                  },
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.show_chart_outlined,
-                        size: 24,
-                        color: _selectedIndex == 2
-                            ? const Color.fromARGB(255, 3, 221, 137)
-                            : Colors.white,
-                      ),
-                      Text(
-                        "Stocks",
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: _selectedIndex == 2
-                              ? const Color.fromARGB(255, 3, 221, 137)
-                              : Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-
-            // lEARNING
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                InkWell(
-                  borderRadius: BorderRadius.circular(30),
-                  onTap: () {
-                    setState(() {
-                      _selectedIndex = 3;
-                      _isFabVisible = true;
-                    });
-                  },
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.school_rounded,
-                        size: 24,
-                        color: _selectedIndex == 3
-                            ? const Color.fromARGB(255, 3, 221, 137)
-                            : Colors.white,
-                      ),
-                      Text(
-                        "Learning",
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: _selectedIndex == 3
-                              ? const Color.fromARGB(255, 3, 221, 137)
-                              : Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+      body: _screens[_selectedIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Colors.black,
+        selectedItemColor: Colors.green,
+        unselectedItemColor: Colors.white54,
+        type: BottomNavigationBarType.fixed,
+        currentIndex: _selectedIndex > 4 ? 0 : _selectedIndex, // prevent index error
+        onTap: (index) {
+          setState(() {
+            _selectedIndex = index;
+            _isFabVisible = true;
+          });
+        },
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+          BottomNavigationBarItem(icon: Icon(Icons.school), label: "Learning"),
+          BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: "Progress"),
+          BottomNavigationBarItem(icon: Icon(Icons.emoji_events), label: "Quizzes"),
+          BottomNavigationBarItem(icon: Icon(Icons.settings), label: "Settings"),
+        ],
       ),
-
       floatingActionButton: _isFabVisible
           ? FloatingActionButton(
         onPressed: () {
           setState(() {
             _selectedIndex = 4; // AI / Chatbot page
-            _isFabVisible = false; // hide FAB
+            _isFabVisible = false;
           });
         },
         backgroundColor: const Color.fromARGB(255, 3, 221, 137),

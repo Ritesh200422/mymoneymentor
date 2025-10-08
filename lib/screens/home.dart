@@ -12,9 +12,7 @@ class FinanceDashboard extends StatelessWidget {
         elevation: 0,
         title: Row(
           children: [
-            const CircleAvatar(
-              backgroundImage: AssetImage("assets/user.png"), // user profile pic
-            ),
+
             const SizedBox(width: 10),
             const Text(
               "Welcome, Mueez 👋",
@@ -69,7 +67,7 @@ class FinanceDashboard extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            // Stats Row (like Hasanat, Verses, etc.)
+            // Stats Row
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -87,21 +85,6 @@ class FinanceDashboard extends StatelessWidget {
             ),
           ],
         ),
-      ),
-
-      // Bottom Navigation
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.black,
-        selectedItemColor: Colors.green,
-        unselectedItemColor: Colors.white54,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.school), label: "Learning"),
-          BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: "Progress"),
-          BottomNavigationBarItem(icon: Icon(Icons.emoji_events), label: "Quizzes"),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: "Settings"),
-        ],
       ),
     );
   }
@@ -134,3 +117,5 @@ class FinanceDashboard extends StatelessWidget {
     );
   }
 }
+
+
