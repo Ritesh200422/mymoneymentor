@@ -50,7 +50,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   final GoogleSignIn googleSignIn =
-  GoogleSignIn(); // ✅ Mobile: no clientId needed
+      GoogleSignIn(); // ✅ Mobile: no clientId needed
 
   /// Google login
   Future<void> _signInWithGoogle() async {
@@ -59,7 +59,7 @@ class _LoginPageState extends State<LoginPage> {
       if (googleUser == null) return; // user canceled
 
       final GoogleSignInAuthentication googleAuth =
-      await googleUser.authentication;
+          await googleUser.authentication;
 
       final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
@@ -240,7 +240,7 @@ class _LoginPageState extends State<LoginPage> {
                             hint: "Enter your email",
                           ),
                           validator: (value) =>
-                          value!.isEmpty ? "Enter email" : null,
+                              value!.isEmpty ? "Enter email" : null,
                         ),
                         const SizedBox(height: 20),
                         TextFormField(
@@ -248,26 +248,26 @@ class _LoginPageState extends State<LoginPage> {
                           style: const TextStyle(color: Colors.white),
                           obscureText: !_isPasswordVisible,
                           decoration:
-                          buildInputDecoration(
-                            label: "Password",
-                            hint: "Enter your password",
-                          ).copyWith(
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _isPasswordVisible
-                                    ? Icons.visibility
-                                    : Icons.visibility_off,
-                                color: Colors.grey[400],
+                              buildInputDecoration(
+                                label: "Password",
+                                hint: "Enter your password",
+                              ).copyWith(
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _isPasswordVisible
+                                        ? Icons.visibility
+                                        : Icons.visibility_off,
+                                    color: Colors.grey[400],
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      _isPasswordVisible = !_isPasswordVisible;
+                                    });
+                                  },
+                                ),
                               ),
-                              onPressed: () {
-                                setState(() {
-                                  _isPasswordVisible = !_isPasswordVisible;
-                                });
-                              },
-                            ),
-                          ),
                           validator: (value) =>
-                          value!.isEmpty ? "Enter password" : null,
+                              value!.isEmpty ? "Enter password" : null,
                         ),
                         const SizedBox(height: 30),
                         Center(
