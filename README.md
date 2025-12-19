@@ -1,4 +1,5 @@
-# mymoneymentor
+# mymoneymentor  AI Financial Assistant and Learning
+
 
 A new Flutter project.
 
