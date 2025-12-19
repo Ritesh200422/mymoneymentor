@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import "package:mymoneymentor/screens/learning.dart";
 import "package:mymoneymentor/screens/bot.dart";
 import "package:mymoneymentor/screens/news.dart";
 import "package:mymoneymentor/screens/profile.dart";
 import "package:mymoneymentor/screens/stocks.dart";
-import "package:mymoneymentor/screens/learning.dart";
 import "package:mymoneymentor/screens/home.dart";
+import 'package:mymoneymentor/screens/traditional_lessons.dart';
 
 class Dashboard extends StatelessWidget {
   const Dashboard({super.key});
@@ -30,12 +31,13 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isFabVisible = true;
 
   final List<Widget> _screens = [
-    FinanceDashboard(), // Home
-    LearningPath(),     // Learning
+    HomePage(), // Home
+    LearningScreen(),     // Learning
     StockMarket(),      // Progress
     TrendingNews(),     // Quizzes
     AdvisorBot(),       // Settings/Chatbot
-    MyProfile(),        // Profile
+    ProfilePage(),        // Profile
+    TraditionalLessonsScreen(), // Traditional Lessons
   ];
 
   @override
@@ -63,14 +65,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.search, color: Colors.white),
-            onPressed: () {
-              setState(() {
-                _selectedIndex = 3; // example: trending news
-              });
-            },
-          ),
           IconButton(
             icon: const Icon(Icons.notifications, color: Colors.white),
             onPressed: () {

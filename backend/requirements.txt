@@ -1,0 +1,16 @@
+fastapi
+uvicorn
+google-generativeai
+firebase-admin
+python-dotenv
+
+# ✅ LangChain + Google Gemini integration
+langchain-core
+langchain-google-genai
+
+# ✅ Free stock market data
+yfinance
+
+# ✅ Data handling & HTTP safety (recommended)
+pydantic
+requests

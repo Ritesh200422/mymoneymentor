@@ -133,7 +133,7 @@ class _TrendingNewsState extends State<TrendingNews> {
     return Column(
       children: [
         CircleAvatar(
-          backgroundColor: color.withOpacity(0.2),
+          backgroundColor: color.withAlpha(51),
           child: Icon(icon, color: color),
         ),
         const SizedBox(height: 5),
@@ -234,7 +234,7 @@ class _TrendingNewsState extends State<TrendingNews> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withAlpha(71),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
