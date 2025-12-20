@@ -155,9 +155,6 @@ class _HomePageState extends State<HomePage> {
 
     // Responsive breakpoints
     final bool isSmallPhone = screenWidth < 360;
-    final bool isMediumPhone = screenWidth >= 360 && screenWidth < 400;
-    final bool isLargePhone = screenWidth >= 400;
-
     // Dynamic padding based on screen size
     final double horizontalPadding = isSmallPhone ? 12 : 16;
     final double verticalPadding = isSmallPhone ? 12 : 18;
